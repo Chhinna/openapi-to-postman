@@ -3,6 +3,23 @@ const sdk = require('postman-collection'),
 
   // This is the default collection name if one can't be inferred from the OpenAPI spec
   COLLECTION_NAME = 'Imported from OpenAPI',
+  /**
+   * Generates a new request item object based on the original request from the response.
+   * @example
+   * generateRequestItemObject({request: response.originalRequest})
+   * @param {Object} response - The response object containing the original request.
+   * @returns {Object} Returns a new request item object.
+   * @description
+   *   - Sets the original request method and URL.
+   *   - Sets the original request query parameters.
+   *   - Sets the original request URL variables.
+   *   - Sets the original request headers.
+   *   - Sets the original request body.
+   *   - Replaces 'X' characters in the response code with '0'.
+   *   - Creates a new SDK response object with the response data.
+   *   - Assimilates the original query parameters into the SDK response.
+   *   - Adds the '_postman_previewlanguage' property to the SDK response.
+   */
   generatePmResponseObject = (response) => {
     const requestItem = generateRequestItemObject({ // eslint-disable-line no-use-before-define
         request: response.originalRequest
@@ -49,6 +66,19 @@ const sdk = require('postman-collection'),
 
     return sdkResponse;
   },
+  /**
+   * Converts a request object into a JSON representation for use in the Postman collection.
+   * @example
+   * convertRequestToJSON(requestObject)
+   * @param {Object} requestObject - The request object to be converted.
+   * @returns {Object} A JSON representation of the request.
+   * @description
+   *   - This function takes in a request object and converts it into a JSON representation that can be used in a Postman collection.
+   *   - The request object must contain the following properties: request.params.queryParams, request.params.pathParams, request.headers, request.responses, and request.auth.
+   *   - The request object can also contain additional properties that will be included in the JSON representation.
+   *   - The function will add query parameters, headers, and responses to the request item.
+   *   - The function will also disable body pruning for request methods like GET and HEAD.
+   */
   generateRequestItemObject = (requestObject) => {
     const requestItem = new sdk.Item(requestObject),
       queryParams = _.get(requestObject, 'request.params.queryParams'),
