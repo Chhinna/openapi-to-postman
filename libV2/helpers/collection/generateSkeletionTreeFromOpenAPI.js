@@ -15,6 +15,26 @@ let _ = require('lodash'),
   },
 
 
+  /**
+   * Creates a unidirectional graph representing the structure of a Postman collection based on an OpenAPI specification.
+   * @example
+   * generateSkeletionTreeFromOpenAPI(openapi, { includeDeprecated: true })
+   * @param {Object} openapi - The OpenAPI specification object.
+   * @param {Object} options - Optional parameters for generating the collection structure.
+   * @param {boolean} options.includeDeprecated - Flag to determine whether to include deprecated requests in the collection.
+   * @returns {Graph} A unidirectional graph representing the structure of the Postman collection.
+   * @description
+   *   - Creates a new Graph object to store the collection structure.
+   *   - Adds a root collection node to the graph.
+   *   - Gets all the paths from the OpenAPI specification and sorts them in descending order.
+   *   - If there are no paths, the function returns the empty graph.
+   *   - For each path, the function creates a base folder for the path and adds and links the requests inside the folder.
+   *   - If the path is a single level (e.g. /user), the function creates a folder for the path and adds the requests inside it.
+   *   - If the path is multiple levels (e.g. /user/123), the function creates a folder for each level and adds the requests inside the final folder.
+   *   - If the path is a single level and the request is deprecated, it is not added to the collection unless the includeDeprecated option is set to true.
+   *   - If the path is multiple levels and the request is deprecated, it is not added to the collection unless the includeDeprecated option is set to true.
+   *   - The function returns the completed graph representing the Postman collection structure.
+   */
   _generateTreeFromPathsV2 = function (openapi, { includeDeprecated }) {
     /**
      * We will create a unidirectional graph
@@ -318,6 +338,19 @@ let _ = require('lodash'),
   //   return tree;
   // },
 
+  /**
+   * Generates a skeleton tree structure for a Postman collection from an OpenAPI specification.
+   * @example
+   * generateSkeletionTreeFromOpenAPI(openapi, { includeDeprecated: true })
+   * @param {Object} openapi - The OpenAPI specification object.
+   * @param {Object} { includeDeprecated } - Optional parameter to include deprecated requests in the collection.
+   * @returns {Object} Returns a tree structure representing the Postman collection.
+   * @description
+   *   - Creates folders for all the tags present in the OpenAPI specification.
+   *   - Includes deprecated requests in the collection if specified.
+   *   - References requests to their respective folders based on tags.
+   *   - Ignores requests that are not allowed HTTP methods.
+   */
   _generateTreeFromTags = function (openapi, { includeDeprecated }) {
     let tree = new Graph(),
 
@@ -424,6 +457,21 @@ let _ = require('lodash'),
     return tree;
   },
 
+  /**
+   * Generates a skeleton tree from an OpenAPI object.
+   * @example
+   * generateSkeletonTreeFromOpenAPI(openapi, tree, { includeDeprecated: true })
+   * @param {Object} openapi - The OpenAPI object to generate the tree from.
+   * @param {Object} tree - The tree object to add the generated nodes and edges to.
+   * @param {Object} options - Optional parameters for generating the tree.
+   * @param {boolean} options.includeDeprecated - Flag to include deprecated requests in the tree.
+   * @returns {Object} The generated tree object.
+   * @description
+   *   - Adds a 'webhook~folder' node to the tree if the OpenAPI object contains webhooks.
+   *   - Adds a 'webhook~request' node for each webhook method to the tree.
+   *   - Adds edges between the 'webhook~folder' node and each 'webhook~request' node.
+   *   - If 'includeDeprecated' is false, ignores any deprecated requests.
+   */
   _generateWebhookEndpoints = function (openapi, tree, { includeDeprecated }) {
     if (!_.isEmpty(openapi.webhooks)) {
       tree.setNode(`${PATH_WEBHOOK}:folder`, {
