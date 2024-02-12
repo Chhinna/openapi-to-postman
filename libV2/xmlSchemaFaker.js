@@ -9,6 +9,32 @@ function indentContent (content, initialIndent) {
   return indentedContent;
 }
 
+/**
+ * Converts a JSON schema to XML format.
+ * @example
+ * convertSchemaToXML('name', { type: 'string', example: 'John' }, false, ' ', 0, 'example')
+ * // returns '<name>John</name>'
+ * @param {string} name - The name of the element.
+ * @param {object} schema - The JSON schema to be converted.
+ * @param {boolean} attribute - Indicates if the element is an attribute.
+ * @param {string} indentChar - The character used for indentation.
+ * @param {number} indent - The number of indentations.
+ * @param {string} resolveTo - Determines what value to use for the element (example or actual value).
+ * @returns {string} The converted XML string.
+ * @description
+ * - If the schema is null or undefined, an empty string is returned.
+ * - If the schema type is integer, string, boolean, or number, the corresponding value is returned as a string.
+ * - If the resolveTo parameter is set to 'example', the example value from the schema is used.
+ * - If the attribute parameter is set to true, the value is returned as an attribute.
+ * - If the schema type is object, the properties are converted to child elements.
+ * - If the schema type is array, the items are converted to child elements.
+ * - If the schema type is array and the wrapped property is set to true, the items are wrapped in a parent element.
+ * - If the schema type is array and the resolveTo parameter is set to 'example', the example value from the schema is used for each item.
+ * - If the schema type is array and the resolveTo parameter is set to 'actual value', the actual value from the schema is used for each item.
+ * - If the schema type is array and the items property is an object, the properties are converted to child elements.
+ * - If the schema type is array and the items property is an array, the items are converted to child elements.
+ * - If the schema type is array and the items property is an array and the wrapped property is set to true, the items are wrapped in a parent element.
+ */
 function convertSchemaToXML(name, schema, attribute, indentChar, indent, resolveTo) {
   var tagPrefix = '',
     cIndent = _.times(indent, _.constant(indentChar)).join(''),
